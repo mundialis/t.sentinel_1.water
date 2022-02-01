@@ -7,7 +7,7 @@
 exclude = .git
 max-line-length = 88
 per-file-ignores =
-    ./i.sentinel_1.validate/i.sentinel_1.validate.py:  E501, F821
+    ./r.water.validate/r.water.validate.py:  E501, F821
     ./i.sentinel_1.water/i.sentinel_1.water.py:  E501, F821
-    ./t.sentinel_1.water/t.sentinel_1.water.py:  E501, F821
-    ./t.sentinel_1.worker/t.sentinel_1.worker.py:  E501, F821
+    ./t.sentinel_1.watermasks/t.sentinel_1.watermasks.py:  E501, F821
+    ./i.sentinel_1.water.worker/i.sentinel_1.water.worker.py:  E501, F821
