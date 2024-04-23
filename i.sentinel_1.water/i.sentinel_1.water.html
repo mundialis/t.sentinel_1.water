@@ -22,7 +22,7 @@ used as threshold to identify the maximum possible water extent. Alternatively,
 both thresholds can be passed by the <b>water_core_thresh</b> and
 <b>water_boundary_thresh</b> parameters when the <b>-m</b> flag is activated.
 The core water areas are used as seeds for the region growing algorithm of
-<a href="i.segment.html">r.s1.grd</a>, where the Sentinel-1 scene is used as
+<a href="r.s1.grd.html">r.s1.grd</a>, where the Sentinel-1 scene is used as
 input. The maximum possible water extent is included as boundary map in the
 region growing process. Only those regions that originate from the seeds are
 saved from the region growing process and classified as water areas. Finally,
@@ -32,9 +32,10 @@ Nearest-Drainage (HAND) raster.
 <h2>REFERENCES</h2>
 
 <ul>
-Cao, H.; Zhang, H.; Wang, C. and Zhang, B. 2019,
+<li>Cao, H.; Zhang, H.; Wang, C. and Zhang, B. 2019,
 "Operational Flood Detection Using Sentinel-1 SAR Data over Large Areas",
 Water 2019, 11(4),786; <a href="https://doi.org/10.3390/w11040786">https://doi.org/10.3390/w11040786</a>
+</li>
 </ul>
 
 <h2>SEE ALSO</h2>
