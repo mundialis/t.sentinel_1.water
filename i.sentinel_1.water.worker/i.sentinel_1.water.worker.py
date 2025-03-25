@@ -110,14 +110,17 @@ def main():
     memory = options["memory"]
     pol = options["polarisation"]
 
-    # set some common environmental variables, like:
-    os.environ.update(
-        dict(
-            GRASS_COMPRESS_NULLS="1",
-            GRASS_COMPRESSOR="LZ4",
-            GRASS_MESSAGE_FORMAT="plain",
+    use_new_mapset = False
+
+    if use_new_mapset:
+        # set some common environmental variables, like:
+        os.environ.update(
+            dict(
+                GRASS_COMPRESS_NULLS="1",
+                GRASS_COMPRESSOR="LZ4",
+                GRASS_MESSAGE_FORMAT="plain",
+            )
         )
-    )
 
     if not grass.find_program("i.sentinel_1.water", "--help"):
         grass.fatal(
@@ -126,21 +129,23 @@ def main():
             + "g.extension i.sentinel_1.water url=path/to/addon"
         )
 
-    grass.message("New mapset: %s" % new_mapset)
-    grass.utils.try_rmdir(os.path.join(gisdbase, location, new_mapset))
+    if use_new_mapset:
+        grass.message("New mapset: %s" % new_mapset)
+        grass.utils.try_rmdir(os.path.join(gisdbase, location, new_mapset))
 
-    # create a private GISRC file for each job
-    gisrc = os.environ["GISRC"]
-    newgisrc = "%s_%s" % (gisrc, str(os.getpid()))
-    grass.try_remove(newgisrc)
-    shutil.copyfile(gisrc, newgisrc)
-    os.environ["GISRC"] = newgisrc
+        # create a private GISRC file for each job
+        gisrc = os.environ["GISRC"]
+        newgisrc = "%s_%s" % (gisrc, str(os.getpid()))
+        grass.try_remove(newgisrc)
+        shutil.copyfile(gisrc, newgisrc)
+        os.environ["GISRC"] = newgisrc
 
     reg = grass.region()
 
-    # change mapset
-    grass.message("GISRC: %s" % os.environ["GISRC"])
-    grass.run_command("g.mapset", flags="c", mapset=new_mapset, quiet=True)
+    if use_new_mapset:
+        # change mapset
+        grass.message("GISRC: %s" % os.environ["GISRC"])
+        grass.run_command("g.mapset", flags="c", mapset=new_mapset, quiet=True)
 
     # set region
     del reg["cells"]
@@ -148,16 +153,18 @@ def main():
     del reg["cols"]
     del reg["zone"]
     del reg["projection"]
-    grass.run_command("g.region", **reg, quiet=True)
 
-    # input raster is copied to current mapset to not mess with group creation
-    grass.run_command(
-        "g.copy", raster="%s@%s,%s" % (input, old_mapset, input), quiet=True
-    )
+    if use_new_mapset:
+        grass.run_command("g.region", **reg, quiet=True)
 
-    # MASK is copied if indicated
-    if flags["m"]:
-        grass.run_command("g.copy", raster="MASK@%s,MASK" % old_mapset, quiet=True)
+        # input raster is copied to current mapset to not mess with group creation
+        grass.run_command(
+            "g.copy", raster="%s@%s,%s" % (input, old_mapset, input), quiet=True
+        )
+
+        # MASK is copied if indicated
+        if flags["m"]:
+            grass.run_command("g.copy", raster="MASK@%s,MASK" % old_mapset, quiet=True)
 
     grass.run_command(
         "i.sentinel_1.water",
@@ -171,17 +178,20 @@ def main():
         quiet=False,
     )
 
-    # cannot remove rasters from different mapset so it is manually removed
-    # here
-    try:
-        grass.run_command("g.remove", type="raster", name=input, flags="f", quiet=True)
-        if flags["m"]:
-            grass.run_command("r.mask", flags="r", quiet=True)
-    except Exception:
-        grass.message("Could not remove %s from mapset %s" % (input, new_mapset))
+    if use_new_mapset:
+        # cannot remove rasters from different mapset so it is manually removed
+        # here
+        try:
+            grass.run_command("g.remove", type="raster", name=input, flags="f", quiet=True)
+            if flags["m"]:
+                grass.run_command("r.mask", flags="r", quiet=True)
+        except Exception:
+            grass.message("Could not remove %s from mapset %s" % (input, new_mapset))
 
-    grass.utils.try_remove(newgisrc)
-    os.environ["GISRC"] = gisrc
+        grass.utils.try_remove(newgisrc)
+        os.environ["GISRC"] = gisrc
+    else:
+        grass.run_command("g.region", **reg, quiet=True)
 
 
 if __name__ == "__main__":
