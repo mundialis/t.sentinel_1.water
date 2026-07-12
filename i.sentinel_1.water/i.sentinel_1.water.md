@@ -1,0 +1,48 @@
+## DESCRIPTION
+
+*i.sentinel_1.water* detects water areas in Sentinel-1 GRD scenes using
+automatic or manual thresholding and region growing. Water areas are
+corrected using a Height-Above-Nearest-Drainage (HAND) raster.
+
+## NOTES
+
+*i.sentinel_1.water* allows for automatic or manual thresholding of
+calibrated Sentinel-1 GRD data in log_dB format. If automatic
+thresholding is applied, the image is tiles into a regular grid of
+500x500 Pixels and the histogram is calculated for each tile. The
+histogram is smoothed and checked for bimodality by counting the
+relative maxima. If the histogram is bimodal, the dB-value of the first
+peak as well as the valley between the peaks (identified using the
+minimum filter from python's skimage package) are saved. If no bimodal
+tiles are identified, the process is repeated on tiles of size 400x400
+pixels, and then 300x300 Pixels. Global thresholds are then identified
+by averaging the db-values of first peaks and histogram valleys from all
+tiles. The average of the first peaks is used as threshold to identify
+core water areas. The average of the hístogram valleys is used as
+threshold to identify the maximum possible water extent. Alternatively,
+both thresholds can be passed by the **water_core_thresh** and
+**water_boundary_thresh** parameters when the **-m** flag is activated.
+The core water areas are used as seeds for the region growing algorithm
+of [r.s1.grd](r.s1.grd.md), where the Sentinel-1 scene is used as input.
+The maximum possible water extent is included as boundary map in the
+region growing process. Only those regions that originate from the seeds
+are saved from the region growing process and classified as water areas.
+Finally, the water areas are corrected using a threshold for the
+provided Height-Above- Nearest-Drainage (HAND) raster.
+
+## REFERENCES
+
+- Cao, H.; Zhang, H.; Wang, C. and Zhang, B. 2019, "Operational Flood
+  Detection Using Sentinel-1 SAR Data over Large Areas", Water 2019,
+  11(4),786; <https://doi.org/10.3390/w11040786>
+
+## SEE ALSO
+
+*[Overview of t.sentinel_1.water toolset](t.sentinel_1.water.md)*
+
+*[i.sentinel_1.import](i.sentinel_1.import.md) (addon),
+[i.segment](https://grass.osgeo.org/grass-stable/manuals/i.segment.html)*
+
+## AUTHOR
+
+Guido Riembauer, [mundialis](https://www.mundialis.de/), Germany
